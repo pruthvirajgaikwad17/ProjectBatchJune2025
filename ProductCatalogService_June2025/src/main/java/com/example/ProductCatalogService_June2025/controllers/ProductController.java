@@ -19,9 +19,4 @@ public class ProductController {
         productList.add(product);
         return productList;
     }
-
-    @GetMapping("")
-    public String abc() {
-        return "abc";
-    }
 }
