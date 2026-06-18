@@ -17,5 +17,5 @@ public class ProductDto {
 
     private String imageUrl;
 
-    private Category category;
+    private CategoryDto category;
 }
