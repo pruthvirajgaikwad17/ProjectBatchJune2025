@@ -11,10 +11,34 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Component
 public class FakeStoreApiClient {
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
+
+    public List<FakeStoreProductDto> getAllProducts() {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+        ResponseEntity<FakeStoreProductDto[]> response = restTemplate.getForEntity("https://fakestoreapi.com/products", FakeStoreProductDto[].class);
+        if (response.getStatusCode().is2xxSuccessful()
+                && response.getBody() != null) {
+            return Arrays.asList(response.getBody());
+        }
+        return null;
+    }
+
+    public FakeStoreProductDto createProduct(FakeStoreProductDto inputFakeStoreProductDto) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+
+        ResponseEntity<FakeStoreProductDto> response = restTemplate.postForEntity("https://fakestoreapi.com/products", inputFakeStoreProductDto ,FakeStoreProductDto.class);
+
+        if(validateResponse(response)) {
+            return response.getBody();
+        }
+        return null;
+    }
 
     public FakeStoreProductDto replaceProduct(FakeStoreProductDto fakeStoreProductDto, Long id) {
         RestTemplate restTemplate = restTemplateBuilder.build();
@@ -35,10 +59,20 @@ public class FakeStoreApiClient {
         return null;
     }
 
-    private Boolean validateResponse(ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity) {
-        if (fakeStoreProductDtoResponseEntity.getBody() != null && fakeStoreProductDtoResponseEntity.getStatusCode() == HttpStatusCode.valueOf(200)) {
-            return true;
+    public FakeStoreProductDto getProductById(Long id) {
+        RestTemplate restTemplate = restTemplateBuilder.build();
+
+        ResponseEntity<FakeStoreProductDto> response = restTemplate.getForEntity("https://fakestoreapi.com/products/{id}", FakeStoreProductDto.class, id);
+
+        if(validateResponse(response)) {
+            return response.getBody();
         }
-        return false;
-        }
+        return null;
+    }
+
+
+    private boolean validateResponse(ResponseEntity<FakeStoreProductDto> response) {
+        return response.getStatusCode().is2xxSuccessful()
+                && response.getBody() != null;
+    }
 }

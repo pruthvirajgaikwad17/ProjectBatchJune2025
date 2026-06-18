@@ -21,7 +21,13 @@ public class ProductController {
 
     @GetMapping("/products")
     public List<ProductDto> getAllProducts() {
-        return null;
+        List<Product> products = productService.getAllProducts();
+        if(products == null) {
+            return null;
+        }
+        return products.stream()
+                .map(this::from)
+                .toList();
     }
 
     @GetMapping("/products/{id}")

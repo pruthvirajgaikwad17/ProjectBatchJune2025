@@ -29,28 +29,16 @@ public class FakeStoreProductService implements IProductService {
 
     @Override
     public Product getProductId(Long id) {
-        RestTemplate restTemplate = restTemplateBuilder.build();
-        ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity = restTemplate.getForEntity("https://fakestoreapi.com/products/{id}", FakeStoreProductDto.class, id);
-
-        FakeStoreProductDto fakeStoreProductDto = fakeStoreProductDtoResponseEntity.getBody();
-
-        if(fakeStoreProductDto != null && fakeStoreProductDtoResponseEntity.getStatusCode() == HttpStatusCode.valueOf(200)) {
-            return from(fakeStoreProductDto);
-        }
-        return null;
+        FakeStoreProductDto output = fakeStoreApiClient.getProductById(id);
+        if(output == null) return null;
+        return from(output);
     }
 
     @Override
     public Product createProduct(Product inputProduct) {
-        FakeStoreProductDto fakeStoreProductDtoInput = from(inputProduct);
-        RestTemplate restTemplate = restTemplateBuilder.build();
-
-        ResponseEntity<FakeStoreProductDto> fakeStoreProductDtoResponseEntity = restTemplate.postForEntity("https://fakestoreapi.com/products", fakeStoreProductDtoInput,FakeStoreProductDto.class );
-        FakeStoreProductDto fakeStoreProductDtoOutput = fakeStoreProductDtoResponseEntity.getBody();
-        if(fakeStoreProductDtoOutput != null && fakeStoreProductDtoResponseEntity.getStatusCode() == HttpStatusCode.valueOf(201)) {
-            return from(fakeStoreProductDtoOutput);
-        }
-        return null;
+        FakeStoreProductDto output = fakeStoreApiClient.createProduct(from(inputProduct));
+        if(output == null) return null;
+        return from(output);
     }
 
     public Product replaceProduct(Product product, Long id) {
@@ -62,7 +50,15 @@ public class FakeStoreProductService implements IProductService {
 
     @Override
     public List<Product> getAllProducts() {
-        return List.of();
+        List<FakeStoreProductDto> output = fakeStoreApiClient.getAllProducts();
+
+        if (output == null) {
+            return null;
+        }
+
+        return output.stream()
+                .map(this::from)
+                .toList();
     }
 
     private FakeStoreProductDto from(Product product) {
