@@ -20,14 +20,16 @@ public class ProductController {
     IProductService productService;
 
     @GetMapping("/products")
-    public List<ProductDto> getAllProducts() {
+    public ResponseEntity<List<ProductDto>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
         if(products == null) {
             return null;
         }
-        return products.stream()
-                .map(this::from)
-                .toList();
+        return ResponseEntity.ok(
+                products.stream()
+                        .map(this::from)
+                        .toList()
+        );
     }
 
     @GetMapping("/products/{id}")
