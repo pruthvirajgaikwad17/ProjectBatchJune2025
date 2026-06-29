@@ -5,6 +5,7 @@ import com.example.ProductCatalogService_June2025.models.Category;
 import com.example.ProductCatalogService_June2025.models.Product;
 import com.example.ProductCatalogService_June2025.services.IProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,10 @@ import java.util.List;
 
 @RestController
 public class ProductController {
+//    @Autowired
+//    @Qualifier("storageProductService") - we want to use both the service based on the controller
+//    IProductService productService;
+
 
     @Autowired
     IProductService productService;
