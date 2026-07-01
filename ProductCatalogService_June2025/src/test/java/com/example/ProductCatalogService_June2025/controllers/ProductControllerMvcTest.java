@@ -7,6 +7,7 @@ import com.example.ProductCatalogService_June2025.services.IProductService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -14,8 +15,10 @@ import tools.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -52,5 +55,22 @@ public class ProductControllerMvcTest {
         System.out.println(response);
 
         mockMvc.perform(get("/products")).andExpect(status().isOk()).andExpect(content().string(response));
+    }
+
+    @Test
+    public void testCreateProduct_runSuccessfully() throws Exception {
+        Product product = new Product();
+        product.setId(1L);
+        product.setName("Iphone15");
+
+        when(productService.createProduct(any(Product.class))).thenReturn(product);
+
+        ProductDto productDto = new ProductDto();
+        productDto.setId(1L);
+        productDto.setName("Iphone15");
+
+        String productDtoString = objectMapper.writeValueAsString(productDto);
+
+        mockMvc.perform(post("/products").content(productDtoString).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andExpect(content().string(productDtoString));
     }
 }
