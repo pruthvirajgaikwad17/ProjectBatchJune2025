@@ -39,8 +39,10 @@ public class ProductController {
 
     @GetMapping("/products/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long productId) {
-            if(productId <= 0) {
-                throw new IllegalArgumentException("Product Id not found");
+            if(productId < 0) {
+                throw new IllegalArgumentException("Product Id cannot be negative");
+            } else if(productId == 0) {
+                throw new IllegalArgumentException("Product Id cannot be zero");
             }
             Product product = productService.getProductId(productId);
             if (product == null) {
