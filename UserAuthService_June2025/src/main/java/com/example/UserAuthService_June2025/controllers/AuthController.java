@@ -4,11 +4,16 @@ import com.example.UserAuthService_June2025.dtos.LoginRequestDto;
 import com.example.UserAuthService_June2025.dtos.SignupRequestDto;
 import com.example.UserAuthService_June2025.dtos.UserDto;
 import com.example.UserAuthService_June2025.dtos.ValidateTokenRequestDto;
+import com.example.UserAuthService_June2025.exceptions.TokenInvalidException;
 import com.example.UserAuthService_June2025.models.User;
 import com.example.UserAuthService_June2025.services.IAuthService;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,13 +46,26 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<UserDto> login(@RequestBody LoginRequestDto loginRequestDto) {
-        User user = authService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
-        return new ResponseEntity<>(from(user), HttpStatus.OK);
+        Pair<User, String> response = authService.login(loginRequestDto.getEmail(), loginRequestDto.getPassword());
+        User user = response.a;
+        String token = response.b;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, token);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(from(user));
     }
 
     @PostMapping("validateToken")
-    public Boolean validateToken(@RequestBody ValidateTokenRequestDto validateTokenRequestDto) {
-        return null;
+    public ResponseEntity<Void> validateToken(@RequestBody ValidateTokenRequestDto validateTokenRequestDto) {
+        Boolean result = authService.validateToken(validateTokenRequestDto.getToken(), validateTokenRequestDto.getUserId());
+        if(!result) {
+            throw new TokenInvalidException("Please login again!!");
+        }
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     UserDto from(User user) {
