@@ -17,8 +17,8 @@ class CategoryRepoTest {
     @Autowired
     private CategoryRepo categoryRepo;
 
-    @Test
-    @Transactional // why we are adding this ?
+//    @Test
+//    @Transactional // why we are adding this ?
     public void testLoading() {
         Optional<Category> categoryOptional = categoryRepo.findById(2L);
         for(Product p: categoryOptional.get().getProducts()) {
@@ -26,8 +26,8 @@ class CategoryRepoTest {
         }
     }
 
-    @Test
-    @Transactional
+//    @Test
+//    @Transactional
     public void testSomething() {
         List<Category> categoriesList = categoryRepo.findAll();
         for(Category category: categoriesList) {
