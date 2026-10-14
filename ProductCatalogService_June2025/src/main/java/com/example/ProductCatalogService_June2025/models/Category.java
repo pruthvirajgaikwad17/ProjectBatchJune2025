@@ -1,5 +1,6 @@
 package com.example.ProductCatalogService_June2025.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
@@ -23,5 +24,6 @@ public class Category extends BaseModel {
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
     @Fetch(FetchMode.SELECT)
     @BatchSize(size = 2) // This will render the query in the batches (eg: 5 products are there then batch size is 2 then batch 1: 2 queries batch 2: 2 queries and batch 3: 1 query) this is used with select query
+    @JsonBackReference
     private List<Product> products;
 }

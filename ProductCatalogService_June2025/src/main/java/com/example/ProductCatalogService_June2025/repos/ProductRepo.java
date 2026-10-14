@@ -41,6 +41,8 @@ public interface ProductRepo extends JpaRepository<Product, Long> {
     @Override
     List<Product> findAllById(Iterable<Long> ids);
 
+    Page<Product> findByNameEquals(String query, Pageable pageable);
+
     // Save many products at once
     @Override
     <S extends Product> List<S> saveAll(Iterable<S> entities);
