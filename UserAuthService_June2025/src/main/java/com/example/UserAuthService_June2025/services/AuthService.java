@@ -1,5 +1,6 @@
 package com.example.UserAuthService_June2025.services;
 
+import com.example.UserAuthService_June2025.dtos.SendEmailDto;
 import com.example.UserAuthService_June2025.exceptions.PasswordMissmatchException;
 import com.example.UserAuthService_June2025.exceptions.UserAlreadyExistException;
 import com.example.UserAuthService_June2025.exceptions.UserNotSignedUpException;
@@ -15,8 +16,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.MacAlgorithm;
 import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
@@ -39,6 +42,12 @@ public class AuthService implements IAuthService{
     @Autowired
     private SecretKey secretKey;
 
+    @Autowired
+    private KafkaTemplate<String, String> kafkaTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
     @Override
     public User signup(String name, String email, String password, String phoneNumber) {
         Optional<User> userOptional = userRepo.findByEmail(email);
@@ -52,7 +61,18 @@ public class AuthService implements IAuthService{
         user.setName(name);
         user.setPhoneNumber(phoneNumber);
 
-        return userRepo.save(user);
+        user = userRepo.save(user);
+
+        // Before returning to user push a message to kafka to send a welcome email
+
+        SendEmailDto emailDto = new SendEmailDto();
+
+        emailDto.setEmail(email);
+        emailDto.setSubject("Welcome to scaler!");
+        emailDto.setBody("Welcome and new registration is done.");
+        kafkaTemplate.send("sendWelcomeEmail", objectMapper.writeValueAsString(emailDto));
+
+        return user;
     }
 
     @Override
