@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,13 @@ public class ProductController {
 
     @Autowired
     IProductService productService;
+
+
+    private RestTemplate restTemplate;
+
+    public ProductController(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     @GetMapping("/products")
     public ResponseEntity<List<ProductDto>> getAllProducts() {
@@ -39,6 +47,11 @@ public class ProductController {
 
     @GetMapping("/products/{id}")
     public ResponseEntity<ProductDto> getProductById(@PathVariable("id") Long productId) {
+
+        restTemplate.getForEntity("http://userauthservice/auth/sample", Void.class);
+
+        System.out.println("get single product api called in ProductController!!");
+
             if(productId < 0) {
                 throw new IllegalArgumentException("Product Id cannot be negative");
             } else if(productId == 0) {
