@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.client.RestTemplate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -21,6 +22,10 @@ class ProductControllerTest {
     @MockitoBean
     private IProductService productService;
 
+    // replaces the real @LoadBalanced RestTemplate, so the test does not need userauthservice running
+    @MockitoBean
+    private RestTemplate restTemplate;
+
     @Test
     public void testGetProductById_valid_runSuccessfully() {
         // Arrange
@@ -29,6 +34,10 @@ class ProductControllerTest {
         product.setId(productId);
         product.setName("Iphone 17");
         when(productService.getProductId(1L)).thenReturn(product);
+
+        // fake reply for the call to http://userauthservice/auth/sample
+        when(restTemplate.getForEntity(anyString(), any(Class.class)))
+                .thenReturn(ResponseEntity.ok().build());
 
         // Act
         ResponseEntity<ProductDto> productDtoResponseEntity= productController.getProductById(1L);

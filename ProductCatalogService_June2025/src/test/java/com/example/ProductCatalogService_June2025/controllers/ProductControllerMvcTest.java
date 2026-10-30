@@ -10,6 +10,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.client.RestTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
@@ -30,6 +31,10 @@ public class ProductControllerMvcTest {
 
     @MockitoBean
     IProductService productService;
+
+    // ProductController needs a RestTemplate, but @WebMvcTest does not load RestTemplateConfig, so we mock it
+    @MockitoBean
+    RestTemplate restTemplate;
 
     @Autowired
     ObjectMapper objectMapper;
