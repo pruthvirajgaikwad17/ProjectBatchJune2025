@@ -1,65 +1,13 @@
-//ProductCatalogService_June2025/src/test/java/com/example/ProductCatalogService_June2025/controllers/ProductControllerTest.java
-package com.example.ProductCatalogService_June2025.controllers;
+package com.example.ProductCatalogService_June2025;
 
-import com.example.ProductCatalogService_June2025.dtos.ProductDto;
-import com.example.ProductCatalogService_June2025.models.Product;
-import com.example.ProductCatalogService_June2025.services.IProductService;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+@SpringBootApplication
+public class ProductCatalogServiceJune2025Application {
 
-@SpringBootTest
-class ProductControllerTest {
+	public static void main(String[] args) {
+		SpringApplication.run(ProductCatalogServiceJune2025Application.class, args);
+	}
 
-    @Autowired
-    private ProductController productController;
-
-    @MockitoBean
-    private IProductService productService;
-
-    // replaces the real @LoadBalanced RestTemplate, so the test does not need userauthservice running
-    @MockitoBean
-    private RestTemplate restTemplate;
-
-    @Test
-    public void testGetProductById_valid_runSuccessfully() {
-        // Arrange
-        Long productId = 1L;
-        Product product = new Product();
-        product.setId(productId);
-        product.setName("Iphone 17");
-        when(productService.getProductId(1L)).thenReturn(product);
-
-        // fake reply for the call to http://userauthservice/auth/sample
-        when(restTemplate.getForEntity(anyString(), any(Class.class)))
-                .thenReturn(ResponseEntity.ok().build());
-
-        // Act
-        ResponseEntity<ProductDto> productDtoResponseEntity= productController.getProductById(1L);
-
-        // Assert
-        assertEquals("Iphone 17", productDtoResponseEntity.getBody().getName());
-        assertEquals(productId, productDtoResponseEntity.getBody().getId());
-        assertNotNull(productDtoResponseEntity);
-        assertNotNull(productDtoResponseEntity.getBody());
-
-        verify(productService, times(1)).getProductId(productId);
-    }
-
-    @Test
-    public void testGetProductByID_SadCase_Zero_Negative() {
-        Exception e = assertThrows(IllegalArgumentException.class, ()-> productController.getProductById(-1L));
-        assertEquals("Product Id cannot be negative", e.getMessage());
-
-        Exception eZero = assertThrows(IllegalArgumentException.class, ()-> productController.getProductById(0L));
-        assertEquals("Product Id cannot be zero", eZero.getMessage());
-
-        verify(productService, times(0)).getProductId(0L);
-        verify(productService, times(0)).getProductId(-1L);
-    }
+}
